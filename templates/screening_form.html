@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExxonMobil screening guide — Raise</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; font-size: 14px; }
+  .topbar { background: #fff; border-bottom: 1px solid #e5e5e3; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .logo { font-size: 13px; font-weight: 600; color: #185FA5; }
+  .req-badge { font-size: 12px; color: #666; background: #f0f0ee; padding: 3px 10px; border-radius: 99px; }
+  .autofill-pill { font-size: 12px; color: #185FA5; background: #E6F1FB; border: none; padding: 6px 14px; border-radius: 99px; cursor: pointer; font-weight: 500; }
+  .autofill-pill:hover { background: #B5D4F4; }
+  .container { max-width: 720px; margin: 0 auto; padding: 28px 20px 80px; }
+  .section { background: #fff; border: 1px solid #e5e5e3; border-radius: 10px; padding: 18px 20px; margin-bottom: 14px; }
+  .section-label { font-size: 10px; font-weight: 600; color: #999; letter-spacing: .07em; text-transform: uppercase; margin-bottom: 14px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .field-row.single { grid-template-columns: 1fr; }
+  .field-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 11px; color: #666; }
+  .field input, .field select, .field textarea {
+    font-size: 13px; padding: 7px 10px; border: 1px solid #ddd; border-radius: 6px;
+    background: #fff; color: #1a1a1a; width: 100%; outline: none;
+    transition: border-color .15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: #185FA5; }
+  .field textarea { resize: vertical; min-height: 72px; }
+  .field.prefilled input { background: #f0f7ff; border-color: #B5D4F4; color: #0C447C; }
+  .prefill-note { font-size: 10px; color: #185FA5; margin-top: 2px; }
+  .xom-history { display: none; }
+  .xom-history.visible { display: block; margin-top: 10px; }
+  .submit-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #e5e5e3; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .submit-btn { background: #185FA5; color: #fff; border: none; padding: 10px 28px; border-radius: 7px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .submit-btn:hover { background: #0C447C; }
+  .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .status-msg { font-size: 13px; color: #666; }
+  .status-msg.success { color: #3B6D11; font-weight: 500; }
+  .status-msg.error { color: #A32D2D; font-weight: 500; }
+  .note-preview { background: #f0f7ff; border: 1px solid #B5D4F4; border-radius: 8px; padding: 14px 16px; margin-top: 14px; display: none; }
+  .note-preview-label { font-size: 10px; font-weight: 600; color: #185FA5; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px; }
+  .note-preview p { font-size: 13px; color: #0C447C; line-height: 1.6; }
+  .required-star { color: #A32D2D; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo">Raise · ExxonMobil</span>
+    <span class="req-badge" id="req-badge">
+      {% if candidate.req_id %}Req #{{ candidate.req_id }} — {{ candidate.req_title }}{% else %}No req selected{% endif %}
+    </span>
+  </div>
+  <button class="autofill-pill" onclick="autofillFromSalesforce()">Autofill from Salesforce</button>
+</div>
+
+<div class="container">
+
+  <input type="hidden" id="req_id" value="{{ candidate.req_id }}">
+  <input type="hidden" id="req_title" value="{{ candidate.req_title }}">
+  <input type="hidden" id="source" value="{{ candidate.source }}">
+
+  <div class="section">
+    <p class="section-label">Candidate info <span class="required-star">*</span></p>
+    <div class="field-row">
+      <div class="field {% if candidate.first_name %}prefilled{% endif %}">
+        <label>Legal first name <span class="required-star">*</span></label>
+        <input id="first_name" type="text" value="{{ candidate.first_name }}" placeholder="First name">
+        {% if candidate.first_name %}<span class="prefill-note">From Salesforce</span>{% endif %}
+      </div>
+      <div class="field {% if candidate.last_name %}prefilled{% endif %}">
+        <label>Legal last name <span class="required-star">*</span></label>
+        <input id="last_name" type="text" value="{{ candidate.last_name }}" placeholder="Last name">
+        {% if candidate.last_name %}<span class="prefill-note">From Salesforce</span>{% endif %}
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field {% if candidate.email %}prefilled{% endif %}">
+        <label>Email <span class="required-star">*</span></label>
+        <input id="email" type="email" value="{{ candidate.email }}" placeholder="candidate@email.com">
+        {% if candidate.email %}<span class="prefill-note">From Salesforce</span>{% endif %}
+      </div>
+      <div class="field {% if candidate.phone %}prefilled{% endif %}">
+        <label>Mobile phone</label>
+        <input id="phone" type="text" value="{{ candidate.phone }}" placeholder="+1 (xxx) xxx-xxxx">
+        {% if candidate.phone %}<span class="prefill-note">From Salesforce</span>{% endif %}
+      </div>
+    </div>
+    <div class="field-row triple">
+      <div class="field {% if candidate.city %}prefilled{% endif %}">
+        <label>City</label>
+        <input id="city" type="text" value="{{ candidate.city }}" placeholder="City">
+      </div>
+      <div class="field {% if candidate.state %}prefilled{% endif %}">
+        <label>State</label>
+        <input id="state" type="text" value="{{ candidate.state }}" placeholder="TX">
+      </div>
+      <div class="field">
+        <label>Country</label>
+        <select id="country">
+          <option value="US">United States</option>
+          <option value="CA">Canada</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>LinkedIn URL</label>
+        <input id="linkedin" type="text" placeholder="linkedin.com/in/...">
+      </div>
+      <div class="field">
+        <label>Date of birth (for Beeline matching)</label>
+        <input id="dob" type="text" placeholder="MM/DD/YYYY">
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-label">ExxonMobil history</p>
+    <div class="field-row single">
+      <div class="field">
+        <label>Previous ExxonMobil contractor or FTE?</label>
+        <select id="prev_xom" onchange="toggleXomHistory()">
+          <option value="No">No</option>
+          <option value="Yes — contractor">Yes — contractor</option>
+          <option value="Yes — FTE">Yes — FTE</option>
+        </select>
+      </div>
+    </div>
+    <div class="xom-history" id="xom-history-fields">
+      <div class="field-row">
+        <div class="field">
+          <label>Last day at ExxonMobil</label>
+          <input id="xom_last_day" type="text" placeholder="MM/DD/YYYY">
+        </div>
+        <div class="field">
+          <label>Manager name at XOM</label>
+          <input id="xom_manager" type="text" placeholder="Manager name">
+        </div>
+      </div>
+      <div class="field-row single">
+        <div class="field">
+          <label>Rehire eligible?</label>
+          <select id="rehire_eligible">
+            <option value="">Select...</option>
+            <option>Yes</option>
+            <option>No</option>
+            <option>Unknown</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-label">Availability + compensation</p>
+    <div class="field-row">
+      <div class="field">
+        <label>Available start date</label>
+        <input id="available_start" type="text" placeholder="MM/DD/YYYY">
+      </div>
+      <div class="field">
+        <label>Pay rate (USD/hr)</label>
+        <input id="pay_rate" type="text" placeholder="e.g. 72.00">
+      </div>
+    </div>
+    <div class="field-row single">
+      <div class="field">
+        <label>Commute commitment confirmed?</label>
+        <select id="commute_confirmed">
+          <option value="">Select...</option>
+          <option>Yes — on-site daily</option>
+          <option>Yes — hybrid</option>
+          <option>No</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-label">Compliance</p>
+    <div class="field-row">
+      <div class="field">
+        <label>Work authorization <span class="required-star">*</span></label>
+        <select id="work_auth">
+          <option value="">Select...</option>
+          <option>US Citizen</option>
+          <option>Green Card</option>
+          <option>H1B</option>
+          <option>TN Visa</option>
+          <option>EAD</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Background check consent</label>
+        <select id="bg_consent">
+          <option value="">Select...</option>
+          <option>Yes</option>
+          <option>No</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-label">Skills + fit</p>
+    <div class="field-row single">
+      <div class="field">
+        <label>Key skills / experience summary</label>
+        <textarea id="skills_summary" placeholder="Years of experience, tools, certifications, relevant background..."></textarea>
+      </div>
+    </div>
+    <div class="field-row single">
+      <div class="field">
+        <label>Recruiter notes (motivation, fit rationale, flags)</label>
+        <textarea id="recruiter_notes" placeholder="Why this candidate, any concerns, candidate motivation..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="note-preview" id="note-preview">
+    <p class="note-preview-label">Agent-generated handoff note (WorkLlama)</p>
+    <p id="note-preview-text"></p>
+  </div>
+
+</div>
+
+<div class="submit-bar">
+  <span class="status-msg" id="status-msg"></span>
+  <button class="submit-btn" id="submit-btn" onclick="submitForm()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    Submit to WorkLlama
+  </button>
+</div>
+
+<script>
+function toggleXomHistory() {
+  const val = document.getElementById('prev_xom').value;
+  const el = document.getElementById('xom-history-fields');
+  el.classList.toggle('visible', val !== 'No');
+}
+
+function autofillFromSalesforce() {
+  const btn = document.querySelector('.autofill-pill');
+  btn.textContent = 'Fetching...';
+  btn.disabled = true;
+  setTimeout(() => {
+    document.getElementById('first_name').value = 'Marcus';
+    document.getElementById('last_name').value = 'Webb';
+    document.getElementById('email').value = 'm.webb@email.com';
+    document.getElementById('phone').value = '+1 (713) 555-0194';
+    document.getElementById('city').value = 'Spring';
+    document.getElementById('state').value = 'TX';
+    document.getElementById('source').value = 'Opptly';
+    ['first_name','last_name','email','phone','city','state'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.closest('.field')) {
+        el.closest('.field').classList.add('prefilled');
+      }
+    });
+    btn.textContent = 'Autofill from Salesforce';
+    btn.disabled = false;
+  }, 800);
+}
+
+function getFormData() {
+  return {
+    req_id: document.getElementById('req_id').value,
+    req_title: document.getElementById('req_title').value,
+    first_name: document.getElementById('first_name').value.trim(),
+    last_name: document.getElementById('last_name').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    city: document.getElementById('city').value.trim(),
+    state: document.getElementById('state').value.trim(),
+    country: document.getElementById('country').value,
+    linkedin: document.getElementById('linkedin').value.trim(),
+    dob: document.getElementById('dob').value.trim(),
+    prev_xom: document.getElementById('prev_xom').value,
+    xom_last_day: document.getElementById('xom_last_day').value.trim(),
+    xom_manager: document.getElementById('xom_manager').value.trim(),
+    rehire_eligible: document.getElementById('rehire_eligible').value,
+    available_start: document.getElementById('available_start').value.trim(),
+    pay_rate: document.getElementById('pay_rate').value.trim(),
+    commute_confirmed: document.getElementById('commute_confirmed').value,
+    work_auth: document.getElementById('work_auth').value,
+    bg_consent: document.getElementById('bg_consent').value,
+    source: document.getElementById('source').value,
+    skills_summary: document.getElementById('skills_summary').value.trim(),
+    recruiter_notes: document.getElementById('recruiter_notes').value.trim(),
+  };
+}
+
+async function submitForm() {
+  const btn = document.getElementById('submit-btn');
+  const msg = document.getElementById('status-msg');
+  const data = getFormData();
+
+  if (!data.first_name || !data.last_name || !data.email || !data.req_id) {
+    msg.textContent = 'Please fill in required fields (name, email, req ID).';
+    msg.className = 'status-msg error';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Generating note...';
+  msg.textContent = 'Claude is writing the handoff note...';
+  msg.className = 'status-msg';
+
+  try {
+    const res = await fetch('/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+      document.getElementById('note-preview-text').textContent = result.note_preview;
+      document.getElementById('note-preview').style.display = 'block';
+      document.getElementById('note-preview').scrollIntoView({ behavior: 'smooth' });
+      msg.textContent = `Written to WorkLlama — ${data.first_name} ${data.last_name}`;
+      msg.className = 'status-msg success';
+      btn.textContent = 'Submitted';
+    } else {
+      msg.textContent = `Error: ${result.error}`;
+      msg.className = 'status-msg error';
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Submit to WorkLlama';
+    }
+  } catch (e) {
+    msg.textContent = 'Network error — please try again.';
+    msg.className = 'status-msg error';
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Submit to WorkLlama';
+  }
+}
+</script>
+</body>
+</html>
