@@ -57,7 +57,7 @@ SEL_RESUME_INPUT = "input[type='file']"
 
 
 async def login(page):
-    await page.goto(f"{WORKLLAMA_URL}/login")
+    await page.goto(f"{WORKLLAMA_URL}/atsadmin/login?companyId={os.environ.get('WORKLLAMA_COMPANY_ID', '863330')}")
     await page.wait_for_load_state("networkidle")
     await page.fill(SEL_LOGIN_EMAIL, WORKLLAMA_EMAIL)
     await page.fill(SEL_LOGIN_PASSWORD, WORKLLAMA_PASSWORD)
