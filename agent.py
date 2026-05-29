@@ -12,9 +12,9 @@ WORKLLAMA_PASSWORD = os.environ.get("WORKLLAMA_PASSWORD")
 # ---------------------------------------------------------------------------
 
 # Login page
-SEL_LOGIN_EMAIL    = "input[type='email']"
-SEL_LOGIN_PASSWORD = "input[type='password']"
-SEL_LOGIN_SUBMIT   = "button[type='submit']"
+SEL_LOGIN_EMAIL    = "#j_email"
+SEL_LOGIN_PASSWORD = "#j_password"
+SEL_LOGIN_SUBMIT   = "button:has-text('Login'), input[type='submit']"
 
 # "Add Candidate" button — opens the modal we saw in the screenshots
 SEL_ADD_CANDIDATE_BTN = "button:has-text('Add Candidate'), button:has-text('Add Candidates')"
