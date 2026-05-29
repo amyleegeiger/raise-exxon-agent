@@ -63,7 +63,7 @@ async def login(page):
     await page.fill(SEL_LOGIN_PASSWORD, WORKLLAMA_PASSWORD)
     await page.click(SEL_LOGIN_SUBMIT)
     await page.wait_for_load_state("networkidle")
-    if "login" in page.url.lower():
+    if "login" in page.url.lower() or "spring_security_check" in page.url.lower():
         raise Exception("WorkLlama login failed — check WORKLLAMA_EMAIL and WORKLLAMA_PASSWORD")
     print("[OK] Logged in successfully")
 
